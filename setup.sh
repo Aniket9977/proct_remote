@@ -1,2 +1,2 @@
-pip install --upgrade pip setuptools wheel
+pip install --upgrade pip
 pip install dlib
