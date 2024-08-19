@@ -1,6 +1,4 @@
-Streamlit
-cv2
-dlib
-numpy
-
-opencv-python
+opencv-python==4.5.3.56
+dlib==19.22.0
+numpy==1.21.0
+streamlit==1.37.1
