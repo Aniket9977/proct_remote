@@ -1,2 +1,2 @@
-pip install --upgrade pip
-pip install dlib
+conda install --upgrade pip
+conda install dlib
