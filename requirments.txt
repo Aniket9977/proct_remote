@@ -1,4 +1,4 @@
-opencv-python
+opencv-python-headless==4.8.0.74
 dlib
 numpy
 streamlit
