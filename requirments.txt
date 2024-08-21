@@ -4,3 +4,4 @@ numpy
 streamlit
 setuptools
 dlib
+cv2
