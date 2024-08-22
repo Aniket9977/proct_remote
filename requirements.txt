@@ -1,5 +1,5 @@
+streamlit
 opencv-python
 dlib
 numpy
-streamlit
 setuptools
