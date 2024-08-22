@@ -1,4 +1,5 @@
 streamlit
+cmake
 opencv-python
 dlib
 numpy
