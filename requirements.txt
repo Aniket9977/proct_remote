@@ -1,6 +1,6 @@
 dlib-bin
 streamlit
 cmake
-opencv-python
+opencv-python-headless
 numpy
 setuptools
