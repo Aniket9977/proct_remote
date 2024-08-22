@@ -1,6 +1,7 @@
+dlib
 streamlit
 cmake
 opencv-python
-dlib
+
 numpy
 setuptools
