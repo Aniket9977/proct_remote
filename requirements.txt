@@ -1,4 +1,4 @@
-dlib
+dlib-bin
 streamlit
 cmake
 opencv-python
