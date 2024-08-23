@@ -23,7 +23,7 @@ st.write("This application detects suspicious eye and mouth activities, and coun
 run = st.checkbox('Run Camera')
 
 if run:
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(2)
     
     if not cap.isOpened():
         st.error("Error: Camera could not be opened")
