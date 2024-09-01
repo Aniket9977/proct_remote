@@ -5,7 +5,7 @@ from eye_aspect_ratio.ear_calculator import get_aspect_ratio
 from mouth_aspect_ratio.mar_calculator import get_mouth_aspect_ratio
 from utils.draw_landmarks import draw_face_landmarks
 
-# Streamlit page configuration
+# Streamlit page configuratio
 st.set_page_config(page_title="Remote Proctoring", layout="wide")
 
 # Load face detector and shape predictor
