@@ -1,0 +1,15 @@
+{
+    "name": "proctoring-app",
+    "version": "1.0.0",
+    "description": "Real-time remote proctoring system using Flask and OpenCV",
+    "main": "app1.py",
+    "scripts": {
+      "start": "flask run"
+    },
+    "author": "Aniket Vishwakarma",
+    "license": "MIT",
+    "dependencies": {
+      "bootstrap": "^5.1.3"
+    }
+  }
+  
