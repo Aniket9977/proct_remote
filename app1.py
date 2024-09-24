@@ -1,7 +1,6 @@
+from flask import Flask, render_template, Response
 import cv2
-import streamlit as st
 import logging
-from datetime import datetime
 from face_detection.detector import get_face_detector
 from eye_aspect_ratio.ear_calculator import get_aspect_ratio
 from mouth_aspect_ratio.mar_calculator import get_mouth_aspect_ratio
@@ -13,8 +12,8 @@ logging.basicConfig(filename='proctoring_log.txt',
                     format='%(asctime)s - %(message)s', 
                     datefmt='%Y-%m-%d %H:%M:%S')
 
-# Streamlit page configuration
-st.set_page_config(page_title="Remote Proctoring", layout="wide")
+# Initialize Flask app
+app = Flask(__name__)
 
 # Load face detector and shape predictor
 detector, predictor = get_face_detector()
@@ -23,76 +22,78 @@ detector, predictor = get_face_detector()
 EAR_THRESHOLD = 0.14  # Adjusted threshold for eye aspect ratio
 MAR_THRESHOLD = 0.1   # Adjusted threshold for mouth aspect ratio
 
-# Streamlit application interface
-st.title("Remote Proctoring System")
-st.write("This application detects suspicious eye and mouth activities, and counts the number of people in the frame.")
+# Flask route for the home page
+@app.route('/')
+def index():
+    # Render the HTML template for the front-end
+    return render_template('index.html')
 
-# Capture video frames
-run = st.checkbox('Run Camera')
+# Flask route for video feed
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-if run:
+# Function to generate frames from the webcam
+def generate_frames():
     cap = cv2.VideoCapture(0)
     
-    if not cap.isOpened():
-        st.error("Error: Camera could not be opened")
-    else:
-        frame_placeholder = st.empty()
-        while run:
-            ret, frame = cap.read()
-            if not ret:
-                st.error("Failed to grab frame")
-                break
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = detector(gray)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
 
-            # Count the number of faces (people) detected
-            num_people = len(faces)
+        # Count the number of faces (people) detected
+        num_people = len(faces)
 
-            if num_people >=2:
-                logging.info('More than 1 person found')
+        if num_people >= 2:
+            logging.info('More than 1 person found')
 
-            # Log the number of people detected
+        # Process each face detected
+        for face in faces:
+            landmarks = predictor(gray, face)
 
-            for face in faces:
-                landmarks = predictor(gray, face)
+            # Extract eye coordinates
+            left_eye_points = [landmarks.part(i) for i in range(36, 42)]
+            right_eye_points = [landmarks.part(i) for i in range(42, 48)]
 
-                # Extract eye coordinates
-                left_eye_points = [landmarks.part(i) for i in range(36, 42)]
-                right_eye_points = [landmarks.part(i) for i in range(42, 48)]
+            # Extract mouth coordinates
+            mouth_points = [landmarks.part(i) for i in range(48, 68)]
 
-                # Extract mouth coordinates
-                mouth_points = [landmarks.part(i) for i in range(48, 68)]
+            # Calculate EAR for both eyes
+            left_ear = get_aspect_ratio(left_eye_points)
+            right_ear = get_aspect_ratio(right_eye_points)
 
-                # Calculate EAR for both eyes
-                left_ear = get_aspect_ratio(left_eye_points)
-                right_ear = get_aspect_ratio(right_eye_points)
+            # Calculate MAR for the mouth
+            mar = get_mouth_aspect_ratio(mouth_points)
 
-                # Calculate MAR for the mouth
-                mar = get_mouth_aspect_ratio(mouth_points)
+            # Draw face landmarks
+            frame = draw_face_landmarks(frame, landmarks)
 
-                # Draw face landmarks
-                frame = draw_face_landmarks(frame, landmarks)
+            # Check if the EAR is below a certain threshold (for suspicious eye activity)
+            if left_ear < EAR_THRESHOLD or right_ear < EAR_THRESHOLD:
+                cv2.putText(frame, "Suspicious Eye Activity!", (25, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                logging.info("Suspicious Eye Activity detected.")
 
-                # Check if the EAR is below a certain threshold (for suspicious eye activity)
-                if left_ear < EAR_THRESHOLD or right_ear < EAR_THRESHOLD:
-                    cv2.putText(frame, "Suspicious Eye Activity!", (25, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                    logging.info("Suspicious Eye Activity detected.")
+            # Check if the MAR is above a certain threshold (for suspicious mouth activity)
+            if mar > MAR_THRESHOLD:
+                cv2.putText(frame, "Suspicious Mouth Activity!", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                logging.info("Suspicious Mouth Activity detected.")
 
-                # Check if the MAR is above a certain threshold (for suspicious mouth activity)
-                if mar > MAR_THRESHOLD:
-                    cv2.putText(frame, "Suspicious Mouth Activity!", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                    logging.info("Suspicious Mouth Activity detected.")
+        # Display the number of people detected on the screen
+        cv2.putText(frame, f"People Count: {num_people}", (25, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Display the number of people detected on the screen
-            cv2.putText(frame, f"People Count: {num_people}", (25, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # Convert frame to JPEG format
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
 
-            # Convert frame to RGB format (Streamlit expects RGB images)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            
-            # Display the frame using Streamlit
-            frame_placeholder.image(frame, channels="RGB")
+        # Yield the frame to be used in the video stream
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-        cap.release()
-else:
-    st.write("Camera is not running. Check the 'Run Camera' checkbox to start.")
+    cap.release()
+
+if __name__ == '__main__':
+    app.run(debug=True)
