@@ -4,3 +4,4 @@ pandas
 opencv-python
 face_detection
 streamlit
+dlib
