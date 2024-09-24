@@ -5,7 +5,7 @@ from datetime import datetime
 from face_detection.detector import get_face_detector
 from eye_aspect_ratio.ear_calculator import get_aspect_ratio
 from mouth_aspect_ratio.mar_calculator import get_mouth_aspect_ratio
-from utils.draw_landmarks import draw_face_landmarks
+from utils import draw_face_landmarks
 
 # Configure logging
 logging.basicConfig(filename='proctoring_log.txt', 
