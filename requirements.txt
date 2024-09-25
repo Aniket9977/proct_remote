@@ -1,11 +1,8 @@
 streamlit
-U numpy
 Flask==2.2.5
 opencv-python==4.8.0.76
 opencv-python-headless==4.8.0.76
 dlib==19.24.0
 numpy==1.24.3
 gunicorn==20.1.0
-eye-aspect-ratio==1.0.0
-mouth-aspect-ratio==1.0.0  
 utils==0.9.0  
