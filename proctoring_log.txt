@@ -1,0 +1,23 @@
+2024-09-25 09:46:47 -  * Restarting with watchdog (windowsapi)
+2024-09-25 09:46:52 -  * Debugger is active!
+2024-09-25 09:46:52 -  * Debugger PIN: 643-059-813
+2024-09-25 09:46:52 -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\scriptrunner\\script_runner.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\werkzeug\\serving.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\werkzeug\\_reloader.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\signal.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\env_util.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\__init__.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\delta_generator.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\elements\\exception.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\error_util.py', reloading
+2024-09-25 09:47:30 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\threading.py', reloading
+2024-09-25 09:47:31 -  * Restarting with watchdog (windowsapi)
+2024-09-25 09:47:36 -  * Debugger is active!
+2024-09-25 09:47:36 -  * Debugger PIN: 643-059-813
+2024-09-25 09:47:36 -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2024-09-25 09:47:49 -  * Detected change in 'C:\\Users\\anike\\.conda\\envs\\open_cv\\Lib\\site-packages\\streamlit\\elements\\markdown.py', reloading
+2024-09-25 09:47:49 -  * Restarting with watchdog (windowsapi)
+2024-09-25 09:47:53 -  * Debugger is active!
+2024-09-25 09:47:53 -  * Debugger PIN: 643-059-813
+2024-09-25 09:47:53 -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
