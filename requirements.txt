@@ -1,4 +1,5 @@
 streamlit
+--upgrade pip
 Flask==2.2.5
 opencv-python==4.8.0.76
 opencv-python-headless==4.8.0.76
