@@ -1,5 +1,6 @@
-streamlit==1.38.0
-Flask==2.2.5
-opencv-python==4.8.0.76
-dlib==19.24.0
-numpy==1.24.3
+dlib-bin
+streamlit
+cmake
+opencv-python-headless
+numpy
+setuptools
