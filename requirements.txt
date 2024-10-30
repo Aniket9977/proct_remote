@@ -4,3 +4,10 @@ cmake
 opencv-python-headless
 numpy
 setuptools
+
+
+
+torch
+
+pandas
+ultralytics

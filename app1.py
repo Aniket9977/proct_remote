@@ -1,10 +1,13 @@
-from flask import Flask, render_template, Response
 import cv2
+import streamlit as st
 import logging
+from datetime import datetime
 from face_detection.detector import get_face_detector
 from eye_aspect_ratio.ear_calculator import get_aspect_ratio
 from mouth_aspect_ratio.mar_calculator import get_mouth_aspect_ratio
 from utils.draw_landmarks import draw_face_landmarks
+from utils import process_frame
+import torch  # Using PyTorch for YOLO-based detection
 
 # Configure logging
 logging.basicConfig(filename='proctoring_log.txt', 
@@ -12,88 +15,51 @@ logging.basicConfig(filename='proctoring_log.txt',
                     format='%(asctime)s - %(message)s', 
                     datefmt='%Y-%m-%d %H:%M:%S')
 
-# Initialize Flask app
-app = Flask(__name__)
+st.set_page_config(page_title="Remote Proctoring", layout="wide")
 
-# Load face detector and shape predictor
 detector, predictor = get_face_detector()
 
-# Thresholds for EAR and MAR
 EAR_THRESHOLD = 0.14  # Adjusted threshold for eye aspect ratio
 MAR_THRESHOLD = 0.1   # Adjusted threshold for mouth aspect ratio
 
-# Flask route for the home page
-@app.route('/')
-def index():
-    # Render the HTML template for the front-end
-    return render_template('index.html')
+st.title("Remote Proctoring System")
+st.write("This application detects suspicious eye and mouth activities, counts the number of people in the frame, and detects cheating gadgets.")
 
-# Flask route for video feed
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+run = st.checkbox('Run Camera')
 
-# Function to generate frames from the webcam
-def generate_frames():
-    cap = cv2.VideoCapture(0)
-    
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+# Select which cameras to use
+camera_option = st.selectbox('Select Camera Input', ('Camera 1', 'Camera 2', 'Both'))
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray)
 
-        # Count the number of faces (people) detected
-        num_people = len(faces)
+model = torch.hub.load('yolov5', 'yolov5s', source='local')  # Use 'source=local' to load from the local cloned directory
+model.conf = 0.5  # Set confidence threshold to adjust model sensitivity
+if run:
+    # Setup two camera captures
+    cap1 = cv2.VideoCapture(0)
+    cap2 = cv2.VideoCapture(1) if camera_option in ('Camera 2', 'Both') else None
 
-        if num_people >= 2:
-            logging.info('More than 1 person found')
+    if not cap1.isOpened() or (cap2 and not cap2.isOpened()):
+        st.error("Error: One or both cameras could not be opened")
+    else:
+        frame_placeholder = st.empty()
+        while run:
+            ret1, frame1 = cap1.read()
+            ret2, frame2 = cap2.read() if cap2 else (False, None)
+            
+            # Handle camera 1
+            if ret1:
+                frame1 = process_frame(frame1, detector, predictor, model, EAR_THRESHOLD, MAR_THRESHOLD)
+                frame_placeholder.image(frame1, channels="RGB")
 
-        # Process each face detected
-        for face in faces:
-            landmarks = predictor(gray, face)
+            # Handle camera 2 if selected
+            if camera_option in ('Camera 2', 'Both') and ret2:
+                frame2 = process_frame(frame2, detector, predictor, model, EAR_THRESHOLD, MAR_THRESHOLD)
+                frame_placeholder.image(frame2, channels="RGB")
 
-            # Extract eye coordinates
-            left_eye_points = [landmarks.part(i) for i in range(36, 42)]
-            right_eye_points = [landmarks.part(i) for i in range(42, 48)]
+        cap1.release()
+        if cap2:
+            cap2.release()
+else:
+    st.write("Camera is not running. Check the 'Run Camera' checkbox to start.")
 
-            # Extract mouth coordinates
-            mouth_points = [landmarks.part(i) for i in range(48, 68)]
-
-            # Calculate EAR for both eyes
-            left_ear = get_aspect_ratio(left_eye_points)
-            right_ear = get_aspect_ratio(right_eye_points)
-
-            # Calculate MAR for the mouth
-            mar = get_mouth_aspect_ratio(mouth_points)
-
-            # Draw face landmarks
-            frame = draw_face_landmarks(frame, landmarks)
-
-            # Check if the EAR is below a certain threshold (for suspicious eye activity)
-            if left_ear < EAR_THRESHOLD or right_ear < EAR_THRESHOLD:
-                cv2.putText(frame, "Suspicious Eye Activity!", (25, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                logging.info("Suspicious Eye Activity detected.")
-
-            # Check if the MAR is above a certain threshold (for suspicious mouth activity)
-            if mar > MAR_THRESHOLD:
-                cv2.putText(frame, "Suspicious Mouth Activity!", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                logging.info("Suspicious Mouth Activity detected.")
-
-        # Display the number of people detected on the screen
-        cv2.putText(frame, f"People Count: {num_people}", (25, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-        # Convert frame to JPEG format
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-
-        # Yield the frame to be used in the video stream
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    cap.release()
-
-if __name__ == '__main__':
-    app.run(debug=True)
+# Function to process frames
