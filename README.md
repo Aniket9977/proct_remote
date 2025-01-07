@@ -18,8 +18,6 @@ NumPy: For numerical operations.
 License
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
-Contact
-For any queries or issues, feel free to contact:
 
 Aniket Vishwakarma
 Email: aniketvishwakarma459@gmail.com
