@@ -4,7 +4,7 @@ cmake
 opencv-python-headless
 numpy
 setuptools
-streamlit-webrtc==0.41.0
+streamlit-webrtc
 
 torch
 
