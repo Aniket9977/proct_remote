@@ -15,7 +15,7 @@ EAR_THRESHOLD = 0.14
 MAR_THRESHOLD = 0.1
 
 
-class VideoProcessor(VideoTransformerBase):
+class VideoProcessor(VideoProcessorBase):
     def __init__(self):
         self.detector = detector
         self.predictor = predictor
