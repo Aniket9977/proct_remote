@@ -1,6 +1,6 @@
 
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import cv2
 import numpy as np
 from face_detection.detector import get_face_detector
@@ -76,6 +76,6 @@ such as eye and mouth movements in real-time.
 
 webrtc_streamer(
     key="example",
-    video_transformer_factory=VideoProcessor,
+    video_processor_factory=VideoProcessor,
     media_stream_constraints={"video": True, "audio": False},
 )
